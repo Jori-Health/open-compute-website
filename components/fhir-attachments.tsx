@@ -274,7 +274,8 @@ function FHIRRawDataViewer({
                           {type}
                         </div>
                         <div className="text-xs text-neutral-400">
-                          {count} resource{count !== 1 ? 's' : ''}
+                          {count as number} resource
+                          {(count as number) !== 1 ? 's' : ''}
                         </div>
                       </div>
                     ))}
