@@ -3,7 +3,7 @@
 
 'use client'
 
-import { FC, memo } from 'react'
+import { FC, memo, useEffect, useRef } from 'react'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { coldarkDark } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 
@@ -13,6 +13,19 @@ import { Check, Copy, Download } from 'lucide-react'
 import { useCopyToClipboard } from '@/lib/hooks/use-copy-to-clipboard'
 
 import { Button } from '@/components/ui/button'
+
+// Dynamically import mermaid
+let mermaid: any = null
+if (typeof window !== 'undefined') {
+  import('mermaid').then(module => {
+    mermaid = module.default
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      securityLevel: 'loose'
+    })
+  })
+}
 
 interface Props {
   language: string
@@ -52,6 +65,13 @@ export const programmingLanguages: languageMap = {
 
 const CodeBlock: FC<Props> = memo(({ language, value }) => {
   const { isCopied, copyToClipboard } = useCopyToClipboard({ timeout: 2000 })
+  const mermaidRef = useRef<HTMLDivElement>(null)
+
+  // Define onCopy function at the top to avoid hoisting issues
+  const onCopy = () => {
+    if (isCopied) return
+    copyToClipboard(value)
+  }
 
   const downloadAsFile = () => {
     if (typeof window === 'undefined') {
@@ -78,9 +98,55 @@ const CodeBlock: FC<Props> = memo(({ language, value }) => {
     URL.revokeObjectURL(url)
   }
 
-  const onCopy = () => {
-    if (isCopied) return
-    copyToClipboard(value)
+  // Render Mermaid diagram
+  useEffect(() => {
+    if (language === 'mermaid' && mermaidRef.current && mermaid) {
+      const renderDiagram = async () => {
+        try {
+          const id = `mermaid-${generateId()}`
+          const { svg } = await mermaid.render(id, value)
+          if (mermaidRef.current) {
+            mermaidRef.current.innerHTML = svg
+          }
+        } catch (error) {
+          console.error('Mermaid rendering error:', error)
+          if (mermaidRef.current) {
+            mermaidRef.current.innerHTML = `<pre class="text-red-400 p-4">Error rendering diagram: ${error}</pre>`
+          }
+        }
+      }
+      renderDiagram()
+    }
+  }, [language, value])
+
+  // If it's a mermaid diagram, render it specially
+  if (language === 'mermaid') {
+    return (
+      <div className="relative w-full font-sans codeblock bg-neutral-800 rounded-lg overflow-hidden">
+        <div className="flex items-center justify-between w-full px-6 py-1 pr-4 bg-neutral-700 text-zinc-100">
+          <span className="text-xs lowercase">mermaid diagram</span>
+          <div className="flex items-center space-x-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-xs focus-visible:ring-1 focus-visible:ring-offset-0"
+              onClick={onCopy}
+            >
+              {isCopied ? (
+                <Check className="w-4 h-4" />
+              ) : (
+                <Copy className="w-4 h-4" />
+              )}
+              <span className="sr-only">Copy diagram code</span>
+            </Button>
+          </div>
+        </div>
+        <div
+          ref={mermaidRef}
+          className="p-6 bg-neutral-800 flex items-center justify-center overflow-x-auto"
+        />
+      </div>
+    )
   }
 
   return (

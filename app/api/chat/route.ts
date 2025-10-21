@@ -17,6 +17,18 @@ const DEFAULT_MODEL: Model = {
   toolCallType: 'native'
 }
 
+/**
+ * Get the API endpoint for a specific Jori Agent
+ */
+function getAgentEndpoint(agentId: string): string | null {
+  switch (agentId) {
+    case 'patient-journey-to-fhir':
+      return '/api/agents/opencompute'
+    default:
+      return null
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const { messages, id: chatId } = await req.json()
@@ -56,6 +68,31 @@ export async function POST(req: Request) {
           statusText: 'Not Found'
         }
       )
+    }
+
+    // Check if this is a Jori Agent request
+    if (selectedModel.providerId === 'jori-agents') {
+      // Route to the appropriate agent endpoint based on model ID
+      const agentEndpoint = getAgentEndpoint(selectedModel.id)
+      
+      if (!agentEndpoint) {
+        return new Response(
+          `Unknown Jori Agent: ${selectedModel.id}`,
+          {
+            status: 404,
+            statusText: 'Not Found'
+          }
+        )
+      }
+      
+      // Forward the request to the agent-specific endpoint
+      return fetch(new URL(agentEndpoint, req.url), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ messages, id: chatId })
+      })
     }
 
     const supportsToolCalling = selectedModel.toolCallType === 'native'

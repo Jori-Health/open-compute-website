@@ -6,9 +6,9 @@ import { ChatRequestOptions, JSONValue, Message } from 'ai'
 
 import { cn } from '@/lib/utils'
 
-import { Spinner } from './ui/spinner'
 import { RenderMessage } from './render-message'
 import { ToolSection } from './tool-section'
+import { Spinner } from './ui/spinner'
 
 // Import section structure interface
 interface ChatSection {
@@ -152,6 +152,7 @@ export function ChatMessages({
                 addToolResult={addToolResult}
                 onUpdateMessage={onUpdateMessage}
                 reload={reload}
+                data={data}
               />
               {showLoading && <Spinner />}
             </div>
@@ -169,6 +170,7 @@ export function ChatMessages({
                   addToolResult={addToolResult}
                   onUpdateMessage={onUpdateMessage}
                   reload={reload}
+                  data={data}
                 />
               </div>
             ))}

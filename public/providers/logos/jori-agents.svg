@@ -1,0 +1,14 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Medical cross with AI circuit pattern -->
+  <rect x="10" y="4" width="4" height="16" rx="1" fill="#4F46E5"/>
+  <rect x="4" y="10" width="16" height="4" rx="1" fill="#4F46E5"/>
+  
+  <!-- Circuit nodes at corners -->
+  <circle cx="6" cy="6" r="1.5" fill="#10B981"/>
+  <circle cx="18" cy="6" r="1.5" fill="#10B981"/>
+  <circle cx="6" cy="18" r="1.5" fill="#10B981"/>
+  <circle cx="18" cy="18" r="1.5" fill="#10B981"/>
+  
+  <!-- Center pulse indicator -->
+  <circle cx="12" cy="12" r="2" fill="#FBBF24"/>
+</svg>

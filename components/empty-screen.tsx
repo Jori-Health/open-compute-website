@@ -4,21 +4,25 @@ import { Button } from '@/components/ui/button'
 
 const exampleMessages = [
   {
-    heading: 'What is DeepSeek R1?',
-    message: 'What is DeepSeek R1?'
+    heading:
+      'John Doe, 58M, chest pain. BP 150/95, HR 88. Diagnosed with acute MI. Not yet treated.',
+    message:
+      'John Doe, 58M, chest pain. BP 150/95, HR 88. Diagnosed with acute MI. Not yet treated.'
   },
   {
-    heading: 'Why is Nvidia growing rapidly?',
-    message: 'Why is Nvidia growing rapidly?'
-  },
-  {
-    heading: 'Tesla vs Rivian',
-    message: 'Tesla vs Rivian'
-  },
-  {
-    heading: 'Summary: https://arxiv.org/pdf/2501.05707',
-    message: 'Summary: https://arxiv.org/pdf/2501.05707'
+    heading:
+      'Jane Smith 65F, meets Dr.Jones, gets diagnosed with stage 4 breast cancer',
+    message:
+      'Jane Smith 65F, meets Dr.Jones, gets diagnosed with stage 4 breast cancer'
   }
+  //   {
+  //     heading: 'Tesla vs Rivian',
+  //     message: 'Tesla vs Rivian'
+  //   },
+  //   {
+  //     heading: 'Summary: https://arxiv.org/pdf/2501.05707',
+  //     message: 'Summary: https://arxiv.org/pdf/2501.05707'
+  //   }
 ]
 export function EmptyScreen({
   submitMessage,

@@ -4,6 +4,7 @@ import { ChatRequestOptions } from 'ai'
 
 import { CollapsibleMessage } from './collapsible-message'
 import { DefaultSkeleton } from './default-skeleton'
+import { FHIRAttachments } from './fhir-attachments'
 import { BotMessage } from './message'
 import { MessageActions } from './message-actions'
 
@@ -14,6 +15,7 @@ export type AnswerSectionProps = {
   chatId?: string
   showActions?: boolean
   messageId: string
+  data?: any[] // Data annotations from streaming
   reload?: (
     messageId: string,
     options?: ChatRequestOptions
@@ -27,6 +29,7 @@ export function AnswerSection({
   chatId,
   showActions = true, // Default to true for backward compatibility
   messageId,
+  data,
   reload
 }: AnswerSectionProps) {
   const enableShare = process.env.NEXT_PUBLIC_ENABLE_SHARE === 'true'
@@ -38,9 +41,15 @@ export function AnswerSection({
     return Promise.resolve(undefined)
   }
 
+  // Extract FHIR metadata from data annotations
+  const fhirMetadata = data?.find(
+    (item: any) => item && item.type === 'fhir-metadata'
+  )
+
   const message = content ? (
     <div className="flex flex-col gap-1">
       <BotMessage message={content} />
+      {fhirMetadata && <FHIRAttachments metadata={fhirMetadata} />}
       {showActions && (
         <MessageActions
           message={content} // Keep original message content for copy

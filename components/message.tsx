@@ -2,6 +2,7 @@
 
 import rehypeExternalLinks from 'rehype-external-links'
 import rehypeKatex from 'rehype-katex'
+import rehypeRaw from 'rehype-raw'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 
@@ -48,7 +49,10 @@ export function BotMessage({
 
   return (
     <MemoizedReactMarkdown
-      rehypePlugins={[[rehypeExternalLinks, { target: '_blank' }]]}
+      rehypePlugins={[
+        [rehypeExternalLinks, { target: '_blank' }],
+        rehypeRaw // Allow HTML in markdown
+      ]}
       remarkPlugins={[remarkGfm]}
       className={cn(
         'prose-sm prose-neutral prose-a:text-accent-foreground/50',

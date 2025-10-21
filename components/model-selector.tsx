@@ -55,8 +55,13 @@ export function ModelSelector({ models }: ModelSelectorProps) {
       } catch (e) {
         console.error('Failed to parse saved model:', e)
       }
+    } else if (models.length > 0) {
+      // If no saved model, default to the first model (Patient Journey to FHIR)
+      const defaultModel = models[0]
+      setValue(createModelId(defaultModel))
+      setCookie('selectedModel', JSON.stringify(defaultModel))
     }
-  }, [])
+  }, [models])
 
   const handleModelSelect = (id: string) => {
     const newValue = id === value ? '' : id

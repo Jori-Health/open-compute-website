@@ -7,9 +7,9 @@ import { groq } from '@ai-sdk/groq'
 import { createOpenAI, openai } from '@ai-sdk/openai'
 import { xai } from '@ai-sdk/xai'
 import {
-  createProviderRegistry,
-  extractReasoningMiddleware,
-  wrapLanguageModel
+    createProviderRegistry,
+    extractReasoningMiddleware,
+    wrapLanguageModel
 } from 'ai'
 import { createOllama } from 'ollama-ai-provider'
 
@@ -114,6 +114,8 @@ export function isProviderEnabled(providerId: string): boolean {
         !!process.env.OPENAI_COMPATIBLE_API_KEY &&
         !!process.env.OPENAI_COMPATIBLE_API_BASE_URL
       )
+    case 'jori-agents':
+      return !!process.env.NEXT_PUBLIC_DATA_WAREHOUSE_URL
     default:
       return false
   }

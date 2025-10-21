@@ -21,6 +21,7 @@ interface RenderMessageProps {
     messageId: string,
     options?: ChatRequestOptions
   ) => Promise<string | null | undefined>
+  data?: JSONValue[]
 }
 
 export function RenderMessage({
@@ -32,7 +33,8 @@ export function RenderMessage({
   chatId,
   addToolResult,
   onUpdateMessage,
-  reload
+  reload,
+  data
 }: RenderMessageProps) {
   const relatedQuestions = useMemo(
     () =>
@@ -151,6 +153,7 @@ export function RenderMessage({
                 chatId={chatId}
                 showActions={isLastPart}
                 messageId={messageId}
+                data={data as any[]}
                 reload={reload}
               />
             )
