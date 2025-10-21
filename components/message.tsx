@@ -8,9 +8,9 @@ import remarkMath from 'remark-math'
 
 import { cn } from '@/lib/utils'
 
+import { Citing } from './custom-link'
 import { CodeBlock } from './ui/codeblock'
 import { MemoizedReactMarkdown } from './ui/markdown'
-import { Citing } from './custom-link'
 
 import 'katex/dist/katex.min.css'
 
@@ -51,7 +51,7 @@ export function BotMessage({
     <MemoizedReactMarkdown
       rehypePlugins={[
         [rehypeExternalLinks, { target: '_blank' }],
-        rehypeRaw // Allow HTML in markdown
+        rehypeRaw as any // Allow HTML in markdown
       ]}
       remarkPlugins={[remarkGfm]}
       className={cn(
