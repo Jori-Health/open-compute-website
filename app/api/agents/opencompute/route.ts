@@ -1,7 +1,7 @@
 import { createOpenAI } from '@ai-sdk/openai'
 import { generateText, StreamData, streamText } from 'ai'
 
-export const maxDuration = 60
+export const maxDuration = 300 // 5 minutes - max for Vercel Enterprise
 
 const openai = createOpenAI({
   apiKey: process.env.OPENAI_API_KEY
