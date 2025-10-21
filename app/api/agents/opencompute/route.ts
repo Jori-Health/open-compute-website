@@ -194,7 +194,8 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
               userId: userId,
               path: `/search/${chatId}`,
               title: messages[0]?.content || 'Patient Journey to FHIR',
-              id: chatId
+              id: chatId,
+              sharePath: undefined
             }
 
             // Create the complete message history including the new response
