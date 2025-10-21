@@ -20,6 +20,14 @@ interface ChatSection {
   assistantMessages: Message[]
 }
 
+// Define FHIR metadata structure
+interface FHIRMetadata {
+  type: 'fhir-metadata'
+  bundleJson?: any
+  graphData?: any
+  patientId?: string
+}
+
 export function Chat({
   id,
   savedMessages = [],
@@ -77,20 +85,22 @@ export function Chat({
       console.log('Data array length:', data.length)
       console.log('Full data structure:')
       console.log(JSON.stringify(data, null, 2))
-      
+
       // Log FHIR metadata specifically if present
-      const fhirMetadata = data.find((item: any) => item && item.type === 'fhir-metadata')
+      const fhirMetadata = data.find(
+        (item: any) => item && item.type === 'fhir-metadata'
+      ) as FHIRMetadata | undefined
       if (fhirMetadata) {
         console.log('\n--- FHIR METADATA ---')
         console.log('Bundle JSON present:', !!fhirMetadata.bundleJson)
         console.log('Graph Data present:', !!fhirMetadata.graphData)
         console.log('Patient ID:', fhirMetadata.patientId)
-        
+
         if (fhirMetadata.bundleJson) {
           console.log('\n--- BUNDLE JSON STRUCTURE ---')
           console.log(JSON.stringify(fhirMetadata.bundleJson, null, 2))
         }
-        
+
         if (fhirMetadata.graphData) {
           console.log('\n--- GRAPH DATA STRUCTURE ---')
           console.log(JSON.stringify(fhirMetadata.graphData, null, 2))
