@@ -13,7 +13,6 @@ import {
   SidebarRail,
   SidebarTrigger
 } from '@/components/ui/sidebar'
-
 import { ChatHistorySection } from './sidebar/chat-history-section'
 import { ChatHistorySkeleton } from './sidebar/chat-history-skeleton'
 

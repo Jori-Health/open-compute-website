@@ -2,14 +2,13 @@
 
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
-import Textarea from 'react-textarea-autosize'
 
 import { Message } from 'ai'
-import { ArrowUp, ChevronDown, MessageCirclePlus, Square } from 'lucide-react'
+import { ArrowUp, ChevronDown, Square } from 'lucide-react'
+import Textarea from 'react-textarea-autosize'
 
 import { Model } from '@/lib/types/models'
 import { cn } from '@/lib/utils'
-
 import { useArtifact } from './artifact/artifact-context'
 import { EmptyScreen } from './empty-screen'
 import { ModelSelector } from './model-selector'
@@ -185,7 +184,7 @@ export function ChatPanel({
               {/* <SearchModeToggle /> */}
             </div>
             <div className="flex items-center gap-2">
-              {messages.length > 0 && (
+              {/* {messages.length > 0 && (
                 <Button
                   variant="outline"
                   size="icon"
@@ -196,7 +195,7 @@ export function ChatPanel({
                 >
                   <MessageCirclePlus className="size-4 group-hover:rotate-12 transition-all" />
                 </Button>
-              )}
+              )} */}
               <Button
                 type={isLoading ? 'button' : 'submit'}
                 size={'icon'}

@@ -1,9 +1,11 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
+import { useEffect, useRef, useState } from 'react'
+
 import { generateId } from 'ai'
 import { ChevronDown, ChevronRight, Download } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+
+import { Button } from '@/components/ui/button'
 
 interface FHIRMetadata {
   type: 'fhir-metadata'
