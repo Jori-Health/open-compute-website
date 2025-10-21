@@ -1,8 +1,7 @@
 {
   "functions": {
-    "app/api/agents/opencompute/route.ts": {
+    "app/api/**/*.ts": {
       "maxDuration": 300
     }
   }
 }
-

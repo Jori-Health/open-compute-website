@@ -6,7 +6,7 @@ import { createToolCallingStreamResponse } from '@/lib/streaming/create-tool-cal
 import { Model } from '@/lib/types/models'
 import { isProviderEnabled } from '@/lib/utils/registry'
 
-export const maxDuration = 30
+export const maxDuration = 300 // 5 minutes - max for Vercel Enterprise
 
 const DEFAULT_MODEL: Model = {
   id: 'gpt-4o-mini',

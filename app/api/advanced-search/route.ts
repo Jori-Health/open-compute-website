@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 
 import { Redis } from '@upstash/redis'
+
+export const maxDuration = 300 // 5 minutes - max for Vercel Enterprise
 import http from 'http'
 import { Agent } from 'http'
 import https from 'https'
