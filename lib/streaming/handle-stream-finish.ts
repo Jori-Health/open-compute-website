@@ -14,6 +14,12 @@ interface HandleStreamFinishParams {
   userId: string
   skipRelatedQuestions?: boolean
   annotations?: ExtendedCoreMessage[]
+  modelInfo?: {
+    id: string
+    name: string
+    provider: string
+    providerId: string
+  }
 }
 
 export async function handleStreamFinish({
@@ -24,7 +30,8 @@ export async function handleStreamFinish({
   dataStream,
   userId,
   skipRelatedQuestions = false,
-  annotations = []
+  annotations = [],
+  modelInfo
 }: HandleStreamFinishParams) {
   try {
     const extendedCoreMessages = convertToExtendedCoreMessages(originalMessages)
@@ -85,7 +92,11 @@ export async function handleStreamFinish({
     await saveChat(
       {
         ...savedChat,
-        messages: generatedMessages
+        messages: generatedMessages,
+        modelId: modelInfo?.id,
+        modelName: modelInfo?.name,
+        modelProvider: modelInfo?.provider,
+        providerId: modelInfo?.providerId
       },
       userId
     ).catch(error => {

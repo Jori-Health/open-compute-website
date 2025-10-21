@@ -66,7 +66,13 @@ export function createToolCallingStreamResponse(config: BaseStreamConfig) {
               chatId,
               dataStream,
               userId,
-              skipRelatedQuestions: shouldSkipRelatedQuestions
+              skipRelatedQuestions: shouldSkipRelatedQuestions,
+              modelInfo: {
+                id: model.id,
+                name: model.name,
+                provider: model.provider,
+                providerId: model.providerId
+              }
             })
           }
         })

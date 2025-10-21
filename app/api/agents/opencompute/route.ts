@@ -1,5 +1,11 @@
 import { createOpenAI } from '@ai-sdk/openai'
+import { createServerClient } from '@supabase/ssr'
 import { generateText, StreamData, streamText } from 'ai'
+import { cookies } from 'next/headers'
+
+import { getChat } from '@/lib/actions/chat'
+import { getCurrentUserId } from '@/lib/auth/get-current-user'
+import { convertToCoreMessages } from 'ai'
 
 export const maxDuration = 300 // 5 minutes - max for Vercel Enterprise
 
@@ -25,7 +31,15 @@ interface PatientJourneyPayload {
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json()
+    const { messages, id: chatId, userId: passedUserId } = await req.json()
+    // Use passed userId if available (from forwarded request), otherwise get from session
+    const userId = passedUserId || (await getCurrentUserId())
+
+    console.log('🔍 OpenCompute Agent - User ID:', userId)
+    console.log(
+      '💾 Save enabled:',
+      process.env.ENABLE_SAVE_CHAT_HISTORY === 'true'
+    )
 
     const dataWarehouseUrl =
       process.env.NEXT_PUBLIC_DATA_WAREHOUSE_URL || 'http://localhost:5050'
@@ -162,8 +176,105 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
           content: formattedResponse
         }
       ],
-      onFinish() {
+      async onFinish(result) {
         data.close()
+
+        // Save chat to database if enabled
+        if (
+          process.env.ENABLE_SAVE_CHAT_HISTORY === 'true' &&
+          userId !== 'anonymous'
+        ) {
+          try {
+            const coreMessages = convertToCoreMessages(messages)
+
+            // Get existing chat or create new one
+            const savedChat = (await getChat(chatId, userId)) ?? {
+              messages: [],
+              createdAt: new Date(),
+              userId: userId,
+              path: `/search/${chatId}`,
+              title: messages[0]?.content || 'Patient Journey to FHIR',
+              id: chatId
+            }
+
+            // Create the complete message history including the new response
+            const updatedMessages = [
+              ...coreMessages,
+              ...result.response.messages
+            ]
+
+            // Add FHIR metadata as a data annotation if it exists
+            if (fhirResult.bundle_json || fhirResult.graph_data) {
+              updatedMessages.push({
+                role: 'data',
+                content: {
+                  type: 'fhir-metadata',
+                  bundleJson: fhirResult.bundle_json,
+                  graphData: fhirResult.graph_data,
+                  patientId: journeyData.patient_id
+                }
+              } as any)
+            }
+
+            // Create a Supabase client with the user's session for saving
+            const cookieStore = await cookies()
+            const supabase = createServerClient(
+              process.env.NEXT_PUBLIC_SUPABASE_URL!,
+              process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+              {
+                cookies: {
+                  getAll() {
+                    return cookieStore.getAll()
+                  },
+                  setAll(cookiesToSet) {
+                    try {
+                      cookiesToSet.forEach(({ name, value, options }) =>
+                        cookieStore.set(name, value, options)
+                      )
+                    } catch {}
+                  }
+                }
+              }
+            )
+
+            // Prepare chat data
+            const chatData = {
+              id: chatId,
+              title: messages[0]?.content || 'Patient Journey to FHIR',
+              user_id: userId,
+              path: `/search/${chatId}`,
+              messages: updatedMessages,
+              share_path: savedChat.sharePath || null,
+              model_id: 'patient-journey-to-fhir',
+              model_name: 'Patient Journey to FHIR',
+              model_provider: 'Jori Agents',
+              provider_id: 'jori-agents',
+              created_at:
+                savedChat.createdAt?.toISOString() || new Date().toISOString()
+            }
+
+            // Save directly with authenticated client
+            const { error } = await supabase.from('chats').upsert(chatData, {
+              onConflict: 'id',
+              ignoreDuplicates: false
+            })
+
+            if (error) {
+              console.error('❌ Supabase error:', error)
+              throw error
+            }
+
+            console.log(
+              '✅ Chat saved successfully to Supabase with FHIR metadata'
+            )
+          } catch (saveError) {
+            console.error('❌ Failed to save chat:', saveError)
+          }
+        } else if (userId === 'anonymous') {
+          console.log('⚠️ Skipping save - user is anonymous')
+        } else {
+          console.log('⚠️ Skipping save - ENABLE_SAVE_CHAT_HISTORY not enabled')
+        }
       }
     })
 
