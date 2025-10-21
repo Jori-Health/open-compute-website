@@ -50,3 +50,7 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'
   ]
 }
+
+// Force the middleware to run in Node.js runtime instead of Edge Runtime
+// This is required for Supabase compatibility
+export const runtime = 'nodejs'
