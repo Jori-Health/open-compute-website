@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 
 interface FHIRMetadata {
   type: 'fhir-metadata'
-  bundleJson?: string
+  bundleJson?: any
   graphData?: {
     nodes: any[]
     edges: any[]
@@ -21,6 +21,8 @@ interface FHIRMetadata {
     }
   }
   patientId: string
+  hasFhirBundle?: boolean // Flag that bundle exists but wasn't sent in stream
+  chatId?: string
 }
 
 interface FHIRAttachmentsProps {
@@ -31,9 +33,16 @@ export function FHIRAttachments({ metadata }: FHIRAttachmentsProps) {
   console.log('[FHIRAttachments] Metadata received:', metadata)
   console.log('[FHIRAttachments] Bundle JSON present:', !!metadata?.bundleJson)
   console.log('[FHIRAttachments] Graph Data present:', !!metadata?.graphData)
+  console.log(
+    '[FHIRAttachments] Has FHIR Bundle flag:',
+    metadata?.hasFhirBundle
+  )
 
   // Don't render anything if there's no valid data
-  if (!metadata || (!metadata.bundleJson && !metadata.graphData)) {
+  if (
+    !metadata ||
+    (!metadata.bundleJson && !metadata.graphData && !metadata.hasFhirBundle)
+  ) {
     console.log('[FHIRAttachments] No valid data to render')
     return null
   }
@@ -43,6 +52,22 @@ export function FHIRAttachments({ metadata }: FHIRAttachmentsProps) {
   return (
     <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
       {metadata.graphData && <FHIRGraph graphData={metadata.graphData} />}
+      {/* Show message if bundle wasn't sent in stream */}
+      {metadata.hasFhirBundle && !metadata.bundleJson && (
+        <div className="border border-blue-700 rounded-lg overflow-hidden bg-blue-900/20">
+          <div className="bg-blue-700 px-3 sm:px-4 py-2">
+            <h3 className="text-xs sm:text-sm font-semibold text-white">
+              💾 FHIR Bundle Saved
+            </h3>
+          </div>
+          <div className="p-3 sm:p-4">
+            <p className="text-xs sm:text-sm text-blue-300">
+              The FHIR bundle was generated and saved successfully. You can view
+              and download it by navigating to this chat from your history.
+            </p>
+          </div>
+        </div>
+      )}
       {metadata.bundleJson && (
         <>
           <FHIRDownloadButton
@@ -243,9 +268,7 @@ function FHIRRawDataViewer({
         setParseError(null)
         console.log('[FHIRRawDataViewer] Successfully parsed bundle JSON')
       } else {
-        throw new Error(
-          `Unexpected bundle JSON type: ${typeof bundleJson}`
-        )
+        throw new Error(`Unexpected bundle JSON type: ${typeof bundleJson}`)
       }
     } catch (error) {
       console.error('[FHIRRawDataViewer] Failed to parse bundle JSON:', error)

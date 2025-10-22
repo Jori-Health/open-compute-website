@@ -119,7 +119,7 @@ export function ChatPanel({
       {messages.length === 0 && (
         <div className="mb-4 sm:mb-10 flex flex-col items-center gap-2 sm:gap-4 w-full">
           <p className="text-center text-lg sm:text-2xl md:text-3xl font-semibold px-2 sm:px-4 w-full break-words">
-            Lets built the future of healthcare together
+            Lets Build the Future of Healthcare Together :)
           </p>
         </div>
       )}

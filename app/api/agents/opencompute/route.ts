@@ -117,6 +117,7 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
     console.log(
       `🌐 Calling data warehouse: ${dataWarehouseUrl}/opencompute/generate-fhir-from-patient-journey`
     )
+    const startTime = Date.now()
 
     const response = await fetch(
       `${dataWarehouseUrl}/opencompute/generate-fhir-from-patient-journey`,
@@ -126,11 +127,14 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(journeyData),
-        signal: AbortSignal.timeout(240000) // 4 minute timeout (less than maxDuration)
+        signal: AbortSignal.timeout(270000) // 4.5 minutes (increased)
       }
     )
 
-    console.log(`✅ Backend response status: ${response.status}`)
+    const duration = ((Date.now() - startTime) / 1000).toFixed(2)
+    console.log(
+      `✅ Backend response status: ${response.status} (took ${duration}s)`
+    )
 
     if (!response.ok) {
       const errorText = await response.text()
@@ -141,7 +145,18 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
     }
 
     const fhirResult = await response.json()
-    console.log('✅ Backend response received successfully')
+    console.log(
+      `✅ Backend response received successfully (${duration}s total)`
+    )
+    console.log(
+      '📦 Response contains:',
+      'bundle:',
+      !!fhirResult.bundle_json,
+      'graph:',
+      !!fhirResult.graph_data,
+      'resources:',
+      fhirResult.generated_resources?.length || 0
+    )
 
     // Log the raw backend response for debugging
     console.log('='.repeat(80))
@@ -172,12 +187,23 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
       )
 
       try {
-        data.append({
+        // ⚠️ TEMPORARY FIX: Don't send the large bundle_json in stream
+        // It's already saved to DB and storage, users can load it from there
+        const streamMetadata = {
           type: 'fhir-metadata',
-          bundleJson: fhirResult.bundle_json,
-          graphData: fhirResult.graph_data,
-          patientId: journeyData.patient_id
-        })
+          bundleJson: null, // Don't send large bundle in stream
+          graphData: fhirResult.graph_data, // Send graph data (smaller)
+          patientId: journeyData.patient_id,
+          hasFhirBundle: !!fhirResult.bundle_json, // Flag that bundle exists
+          chatId: chatId // Add chat ID so frontend can fetch if needed
+        }
+
+        console.log('📦 Streaming metadata (bundle excluded)')
+        console.log('   - Has graph data:', !!streamMetadata.graphData)
+        console.log('   - Has FHIR bundle:', streamMetadata.hasFhirBundle)
+        console.log('   - Patient ID:', streamMetadata.patientId)
+
+        data.append(streamMetadata)
         console.log('✅ FHIR metadata appended to stream')
       } catch (appendError) {
         console.error(
