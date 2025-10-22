@@ -1,4 +1,4 @@
-import { createOpenAI } from '@ai-sdk/openai'
+import { groq } from '@ai-sdk/groq'
 import { createServerClient } from '@supabase/ssr'
 import { generateText, StreamData, streamText } from 'ai'
 import { cookies } from 'next/headers'
@@ -8,10 +8,6 @@ import { getCurrentUserId } from '@/lib/auth/get-current-user'
 import { convertToCoreMessages } from 'ai'
 
 export const maxDuration = 300 // 5 minutes - max for Vercel Enterprise
-
-const openai = createOpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
 
 interface JourneyStage {
   name: string
@@ -72,7 +68,7 @@ ${userMessage}
 Extract the information and return ONLY valid JSON. If the input doesn't contain enough information for a complete patient journey, create a reasonable interpretation based on what's provided.`
 
     const extraction = await generateText({
-      model: openai.chat('gpt-4o-mini'),
+      model: groq('openai/gpt-oss-120b'),
       prompt: extractionPrompt
     })
 
@@ -164,12 +160,11 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
 
     // Stream the response back
     const result = streamText({
-      model: openai.chat('gpt-4o-mini'),
+      model: groq('openai/gpt-oss-120b'),
       messages: [
         {
           role: 'system',
-          content:
-            'You are a passthrough system. Output the user message exactly as provided with no changes whatsoever.'
+          content: `You are to summarize in a short paragraph, the success or failure of the generation of FHIR resources from the users request. Their request was: ${userMessage}`
         },
         {
           role: 'user',
@@ -285,7 +280,7 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
 
     // Return error as a stream
     return streamText({
-      model: openai.chat('gpt-4o-mini'),
+      model: groq('openai/gpt-oss-120b'),
       prompt: `There was an error generating FHIR resources: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again or rephrase your request.`
     }).toDataStreamResponse()
   }
