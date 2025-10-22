@@ -150,7 +150,7 @@ export function ChatPanel({
             tabIndex={0}
             onCompositionStart={handleCompositionStart}
             onCompositionEnd={handleCompositionEnd}
-            placeholder="Ask a question..."
+            placeholder="Enter a patient journey description..."
             spellCheck={false}
             value={input}
             disabled={isLoading || isToolInvocationInProgress()}
@@ -233,6 +233,15 @@ export function ChatPanel({
           />
         )}
       </form>
+
+      {messages.length === 0 && (
+        <div className="mt-2 flex flex-col items-center w-full">
+          <p className="text-center text-sm text-gray-500 dark:text-gray-400 px-2 sm:px-4 w-full break-words">
+            Do not include any real patient information, this tool is for
+            generating sample patient journeys for FHIR resources
+          </p>
+        </div>
+      )}
     </div>
   )
 }

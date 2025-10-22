@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
 
 import { Check, ChevronsUpDown, Lightbulb } from 'lucide-react'
 
@@ -100,9 +100,14 @@ export function ModelSelector({ models }: ModelSelectorProps) {
                 height={16}
                 className="bg-white rounded-full border flex-shrink-0"
               />
-              <span className="text-xs font-medium truncate max-w-[100px] sm:max-w-none">{selectedModel.name}</span>
+              <span className="text-xs font-medium truncate max-w-[100px] sm:max-w-none">
+                {selectedModel.name}
+              </span>
               {isReasoningModel(selectedModel.id) && (
-                <Lightbulb size={12} className="text-accent-blue-foreground flex-shrink-0" />
+                <Lightbulb
+                  size={12}
+                  className="text-accent-blue-foreground flex-shrink-0"
+                />
               )}
             </div>
           ) : (
@@ -113,7 +118,10 @@ export function ModelSelector({ models }: ModelSelectorProps) {
       </PopoverTrigger>
       <PopoverContent className="w-[280px] sm:w-72 p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search models..." className="text-xs sm:text-sm" />
+          <CommandInput
+            placeholder="Search agents..."
+            className="text-xs sm:text-sm"
+          />
           <CommandList>
             <CommandEmpty>No model found.</CommandEmpty>
             {Object.entries(groupedModels).map(([provider, models]) => (
