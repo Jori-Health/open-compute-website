@@ -263,6 +263,35 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
             console.log(
               '✅ Chat saved successfully to Supabase with FHIR metadata'
             )
+
+            // Save FHIR bundle to Supabase storage if it exists
+            if (fhirResult.bundle_json) {
+              try {
+                const bundleFileName = `${journeyData.patient_id}_${chatId}.json`
+                const bundlePath = `fhir-bundles/${userId}/${bundleFileName}`
+
+                const { error: uploadError } = await supabase.storage
+                  .from('fhir-resources')
+                  .upload(bundlePath, fhirResult.bundle_json, {
+                    contentType: 'application/json',
+                    upsert: true
+                  })
+
+                if (uploadError) {
+                  console.error(
+                    '❌ Failed to save FHIR bundle to storage:',
+                    uploadError
+                  )
+                } else {
+                  console.log(`✅ FHIR bundle saved to storage: ${bundlePath}`)
+                }
+              } catch (storageError) {
+                console.error(
+                  '❌ Error saving FHIR bundle to storage:',
+                  storageError
+                )
+              }
+            }
           } catch (saveError) {
             console.error('❌ Failed to save chat:', saveError)
           }
@@ -399,15 +428,6 @@ function formatFHIRResponse(
       output += `- ${error}\n`
     })
     output += `\n`
-  }
-
-  if (result.saved_to) {
-    output += `## Files Saved\n`
-    output += `The generated FHIR resources have been saved to: \`${result.saved_to}\`\n\n`
-    output += `This includes:\n`
-    output += `- **patient_bundle.json**: Complete FHIR Bundle\n`
-    output += `- **bulk_fhir.jsonl**: All resources in JSONL format\n`
-    output += `- **README.txt**: Summary of generated resources\n`
   }
 
   return output
