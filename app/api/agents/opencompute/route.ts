@@ -114,31 +114,58 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
     }
 
     // Call the data warehouse OpenCompute endpoint
-    console.log(
-      `🌐 Calling data warehouse: ${dataWarehouseUrl}/opencompute/generate-fhir-from-patient-journey`
-    )
+    console.log('='.repeat(80))
+    console.log('🌐 CALLING DATA WAREHOUSE')
+    console.log(`   URL: ${dataWarehouseUrl}/opencompute/generate-fhir-from-patient-journey`)
+    console.log(`   Patient ID: ${journeyData.patient_id}`)
+    console.log(`   Stages: ${journeyData.stages.length}`)
+    console.log(`   Payload size: ${JSON.stringify(journeyData).length} bytes`)
+    console.log('='.repeat(80))
+    
     const startTime = Date.now()
 
-    const response = await fetch(
-      `${dataWarehouseUrl}/opencompute/generate-fhir-from-patient-journey`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(journeyData),
-        signal: AbortSignal.timeout(270000) // 4.5 minutes (increased)
-      }
-    )
+    let response: Response
+    try {
+      response = await fetch(
+        `${dataWarehouseUrl}/opencompute/generate-fhir-from-patient-journey`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(journeyData),
+          signal: AbortSignal.timeout(270000) // 4.5 minutes (increased)
+        }
+      )
+    } catch (fetchError) {
+      const duration = ((Date.now() - startTime) / 1000).toFixed(2)
+      console.log('='.repeat(80))
+      console.error(`❌ FETCH ERROR (after ${duration}s)`)
+      console.error(`   Error type: ${fetchError instanceof Error ? fetchError.name : 'Unknown'}`)
+      console.error(`   Error message: ${fetchError instanceof Error ? fetchError.message : String(fetchError)}`)
+      console.error(`   Data warehouse URL: ${dataWarehouseUrl}`)
+      console.log('='.repeat(80))
+      throw fetchError
+    }
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2)
-    console.log(
-      `✅ Backend response status: ${response.status} (took ${duration}s)`
-    )
+    console.log('='.repeat(80))
+    console.log(`✅ BACKEND RESPONSE RECEIVED (${duration}s)`)
+    console.log(`   Status: ${response.status} ${response.statusText}`)
+    console.log(`   Content-Type: ${response.headers.get('content-type')}`)
+    console.log(`   Generation-Time: ${response.headers.get('X-Generation-Time')}s`)
+    console.log(`   Resource-Count: ${response.headers.get('X-Resource-Count')}`)
+    console.log('='.repeat(80))
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error(`❌ Backend error: ${response.status} - ${errorText}`)
+      console.log('='.repeat(80))
+      console.error(`❌ BACKEND ERROR RESPONSE`)
+      console.error(`   Status: ${response.status} ${response.statusText}`)
+      console.error(`   Error body (first 500 chars):`)
+      console.error(`   ${errorText.substring(0, 500)}`)
+      console.log('='.repeat(80))
       throw new Error(
         `Data warehouse API error: ${response.status} - ${errorText}`
       )
