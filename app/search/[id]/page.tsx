@@ -63,8 +63,38 @@ export default async function SearchPage(props: {
   const { id } = await props.params
 
   const chat = await getChat(id, userId)
+
+  // Log the raw messages from database
+  console.log('🔍 [SearchPage] Loading chat:', id)
+  console.log(
+    '🔍 [SearchPage] Raw messages from DB:',
+    chat?.messages?.length || 0
+  )
+  if (chat?.messages) {
+    chat.messages.forEach((msg: any, idx: number) => {
+      console.log(`🔍 [SearchPage] Message ${idx}:`, {
+        role: msg.role,
+        contentType: typeof msg.content,
+        hasType:
+          msg.content && typeof msg.content === 'object'
+            ? msg.content.type
+            : 'N/A'
+      })
+    })
+  }
+
   // convertToUIMessages for useChat hook
   const messages = convertToUIMessages(chat?.messages || [])
+
+  console.log('🔍 [SearchPage] Converted UI messages:', messages.length)
+  messages.forEach((msg: any, idx: number) => {
+    console.log(`🔍 [SearchPage] UI Message ${idx}:`, {
+      role: msg.role,
+      hasAnnotations: !!msg.annotations,
+      annotationCount: msg.annotations?.length || 0,
+      annotationTypes: msg.annotations?.map((a: any) => a.type) || []
+    })
+  })
 
   if (!chat) {
     redirect('/')

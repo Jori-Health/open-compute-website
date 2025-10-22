@@ -77,38 +77,49 @@ export function Chat({
   })
 
   // Log data from backend whenever it updates
-  //   useEffect(() => {
-  //     if (data && data.length > 0) {
-  //       console.log('='.repeat(80))
-  //       console.log('FRONTEND RECEIVED DATA - Patient Journey to FHIR')
-  //       console.log('='.repeat(80))
-  //       console.log('Data array length:', data.length)
-  //       console.log('Full data structure:')
-  //       console.log(JSON.stringify(data, null, 2))
+  useEffect(() => {
+    if (data && data.length > 0) {
+      console.log('='.repeat(80))
+      console.log('FRONTEND RECEIVED DATA - Patient Journey to FHIR')
+      console.log('='.repeat(80))
+      console.log('Data array length:', data.length)
+      console.log('Full data structure:')
+      console.log(JSON.stringify(data, null, 2))
 
-  //       // Log FHIR metadata specifically if present
-  //       const fhirMetadata = data.find(
-  //         (item: any) => item && item.type === 'fhir-metadata'
-  //       ) as FHIRMetadata | undefined
-  //       if (fhirMetadata) {
-  //         console.log('\n--- FHIR METADATA ---')
-  //         console.log('Bundle JSON present:', !!fhirMetadata.bundleJson)
-  //         console.log('Graph Data present:', !!fhirMetadata.graphData)
-  //         console.log('Patient ID:', fhirMetadata.patientId)
+      // Log FHIR metadata specifically if present
+      const fhirMetadata = data.find(
+        (item: any) => item && item.type === 'fhir-metadata'
+      ) as FHIRMetadata | undefined
+      if (fhirMetadata) {
+        console.log('\n--- FHIR METADATA ---')
+        console.log('Bundle JSON present:', !!fhirMetadata.bundleJson)
+        console.log('Graph Data present:', !!fhirMetadata.graphData)
+        console.log('Patient ID:', fhirMetadata.patientId)
 
-  //         if (fhirMetadata.bundleJson) {
-  //           console.log('\n--- BUNDLE JSON STRUCTURE ---')
-  //           console.log(JSON.stringify(fhirMetadata.bundleJson, null, 2))
-  //         }
+        if (fhirMetadata.bundleJson) {
+          console.log('\n--- BUNDLE JSON STRUCTURE ---')
+          console.log(
+            'Bundle JSON type:',
+            typeof fhirMetadata.bundleJson,
+            'length:',
+            typeof fhirMetadata.bundleJson === 'string'
+              ? fhirMetadata.bundleJson.length
+              : 'N/A'
+          )
+        }
 
-  //         if (fhirMetadata.graphData) {
-  //           console.log('\n--- GRAPH DATA STRUCTURE ---')
-  //           console.log(JSON.stringify(fhirMetadata.graphData, null, 2))
-  //         }
-  //       }
-  //       console.log('='.repeat(80))
-  //     }
-  //   }, [data])
+        if (fhirMetadata.graphData) {
+          console.log('\n--- GRAPH DATA STRUCTURE ---')
+          console.log('Graph has nodes:', !!fhirMetadata.graphData.nodes)
+          console.log('Graph has edges:', !!fhirMetadata.graphData.edges)
+          console.log('Graph has mermaid:', !!fhirMetadata.graphData.mermaid)
+        }
+      } else {
+        console.log('⚠️ NO FHIR METADATA FOUND IN DATA ARRAY')
+      }
+      console.log('='.repeat(80))
+    }
+  }, [data])
 
   const isLoading = status === 'submitted' || status === 'streaming'
 

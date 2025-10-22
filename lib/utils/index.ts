@@ -98,6 +98,8 @@ export function convertToUIMessages(
   let pendingReasoning: string | undefined = undefined
   let pendingReasoningTime: number | undefined = undefined
 
+  console.log('[convertToUIMessages] Converting messages:', messages.length)
+
   return messages.reduce((chatMessages: Array<Message>, message) => {
     // Handle tool messages
     if (message.role === 'tool') {
@@ -109,19 +111,17 @@ export function convertToUIMessages(
 
     // Data messages are used to capture annotations, including reasoning.
     if (message.role === 'data') {
+      console.log('[convertToUIMessages] Found data message:', message.content)
       if (
         message.content !== null &&
         message.content !== undefined &&
         typeof message.content !== 'string'
       ) {
         const content = message.content as JSONValue
-        if (
-          content &&
-          typeof content === 'object' &&
-          'type' in content &&
-          'data' in content
-        ) {
-          if (content.type === 'reasoning') {
+        if (content && typeof content === 'object' && 'type' in content) {
+          console.log('[convertToUIMessages] Data message type:', (content as any).type)
+          // Check if it's a reasoning message with nested data structure
+          if (content.type === 'reasoning' && 'data' in content) {
             // If content.data is an object, capture its reasoning and time;
             // otherwise treat it as a simple string.
             if (typeof content.data === 'object' && content.data !== null) {
@@ -132,6 +132,9 @@ export function convertToUIMessages(
               pendingReasoningTime = 0
             }
           } else {
+            // For other annotation types (fhir-metadata, tool_call, etc.),
+            // push the entire content object as-is
+            console.log('[convertToUIMessages] Adding to pendingAnnotations:', content)
             pendingAnnotations.push(content)
           }
         }
@@ -187,6 +190,7 @@ export function convertToUIMessages(
               ]
             : [])
         ]
+        console.log('[convertToUIMessages] Created assistant message with annotations:', annotations)
       }
     }
 

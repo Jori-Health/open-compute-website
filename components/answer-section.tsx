@@ -41,10 +41,18 @@ export function AnswerSection({
     return Promise.resolve(undefined)
   }
 
-  // Extract FHIR metadata from data annotations
+  // Extract FHIR metadata from data annotations (streaming) OR from message annotations (saved messages)
   const fhirMetadata = data?.find(
     (item: any) => item && item.type === 'fhir-metadata'
   )
+
+  // Debug logging for FHIR metadata rendering
+  console.log('[AnswerSection] Message ID:', messageId)
+  console.log('[AnswerSection] Data received:', data)
+  console.log('[AnswerSection] FHIR metadata found:', !!fhirMetadata)
+  if (fhirMetadata) {
+    console.log('[AnswerSection] FHIR metadata:', fhirMetadata)
+  }
 
   const message = content ? (
     <div className="flex flex-col gap-1">

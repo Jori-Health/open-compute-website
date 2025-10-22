@@ -28,10 +28,17 @@ interface FHIRAttachmentsProps {
 }
 
 export function FHIRAttachments({ metadata }: FHIRAttachmentsProps) {
+  console.log('[FHIRAttachments] Metadata received:', metadata)
+  console.log('[FHIRAttachments] Bundle JSON present:', !!metadata?.bundleJson)
+  console.log('[FHIRAttachments] Graph Data present:', !!metadata?.graphData)
+
   // Don't render anything if there's no valid data
   if (!metadata || (!metadata.bundleJson && !metadata.graphData)) {
+    console.log('[FHIRAttachments] No valid data to render')
     return null
   }
+
+  console.log('[FHIRAttachments] Rendering components...')
 
   return (
     <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
@@ -57,14 +64,24 @@ function FHIRGraph({ graphData }: { graphData: FHIRMetadata['graphData'] }) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+  console.log('[FHIRGraph] Rendering graph component')
+  console.log('[FHIRGraph] Graph data available:', !!graphData)
+  console.log('[FHIRGraph] Graph has mermaid:', !!graphData?.mermaid)
+
   useEffect(() => {
-    if (!graphData || !mermaidRef.current) return
+    if (!graphData || !mermaidRef.current) {
+      console.log('[FHIRGraph] Missing graphData or mermaidRef')
+      return
+    }
+
+    console.log('[FHIRGraph] Starting diagram render')
 
     const renderDiagram = async () => {
       try {
         setIsLoading(true)
         setError(null)
 
+        console.log('[FHIRGraph] Importing mermaid')
         // Dynamically import mermaid
         const mermaid = (await import('mermaid')).default
         mermaid.initialize({
@@ -73,14 +90,16 @@ function FHIRGraph({ graphData }: { graphData: FHIRMetadata['graphData'] }) {
           securityLevel: 'loose'
         })
 
+        console.log('[FHIRGraph] Rendering mermaid diagram')
         const id = `mermaid-${generateId()}`
         const { svg } = await mermaid.render(id, graphData.mermaid)
 
         if (mermaidRef.current) {
           mermaidRef.current.innerHTML = svg
+          console.log('[FHIRGraph] Diagram rendered successfully')
         }
       } catch (err) {
-        console.error('Mermaid rendering error:', err)
+        console.error('[FHIRGraph] Mermaid rendering error:', err)
         setError(err instanceof Error ? err.message : 'Unknown error')
       } finally {
         setIsLoading(false)
@@ -90,7 +109,10 @@ function FHIRGraph({ graphData }: { graphData: FHIRMetadata['graphData'] }) {
     renderDiagram()
   }, [graphData])
 
-  if (!graphData) return null
+  if (!graphData) {
+    console.log('[FHIRGraph] No graph data, returning null')
+    return null
+  }
 
   return (
     <div className="border border-neutral-700 rounded-lg overflow-hidden bg-neutral-800">
@@ -133,16 +155,37 @@ function FHIRDownloadButton({
   bundleJson: string
   patientId: string
 }) {
+  console.log('[FHIRDownloadButton] Rendering download button')
+  console.log('[FHIRDownloadButton] Patient ID:', patientId)
+  console.log(
+    '[FHIRDownloadButton] Bundle JSON available:',
+    !!bundleJson,
+    'type:',
+    typeof bundleJson
+  )
+
   const handleDownload = () => {
-    const blob = new Blob([bundleJson], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `fhir-bundle-${patientId}.json`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    console.log('[FHIRDownloadButton] Download initiated')
+    try {
+      // Handle both string and object types
+      const jsonString =
+        typeof bundleJson === 'string'
+          ? bundleJson
+          : JSON.stringify(bundleJson, null, 2)
+
+      const blob = new Blob([jsonString], { type: 'application/json' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `fhir-bundle-${patientId}.json`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+      console.log('[FHIRDownloadButton] Download complete')
+    } catch (error) {
+      console.error('[FHIRDownloadButton] Download failed:', error)
+    }
   }
 
   return (
@@ -177,17 +220,67 @@ function FHIRRawDataViewer({
 }) {
   const [isExpanded, setIsExpanded] = useState(false)
   const [parsedBundle, setParsedBundle] = useState<any>(null)
+  const [parseError, setParseError] = useState<string | null>(null)
 
   useEffect(() => {
     try {
-      const parsed = JSON.parse(bundleJson)
-      setParsedBundle(parsed)
+      console.log('[FHIRRawDataViewer] Attempting to parse bundle JSON')
+      console.log('[FHIRRawDataViewer] Bundle JSON type:', typeof bundleJson)
+      console.log(
+        '[FHIRRawDataViewer] Bundle JSON length:',
+        bundleJson?.length || 'N/A'
+      )
+
+      // If bundleJson is already an object, use it directly
+      if (typeof bundleJson === 'object') {
+        console.log('[FHIRRawDataViewer] Bundle JSON is already an object')
+        setParsedBundle(bundleJson)
+        setParseError(null)
+      } else if (typeof bundleJson === 'string') {
+        console.log('[FHIRRawDataViewer] Parsing bundle JSON string')
+        const parsed = JSON.parse(bundleJson)
+        setParsedBundle(parsed)
+        setParseError(null)
+        console.log('[FHIRRawDataViewer] Successfully parsed bundle JSON')
+      } else {
+        throw new Error(
+          `Unexpected bundle JSON type: ${typeof bundleJson}`
+        )
+      }
     } catch (error) {
-      console.error('Failed to parse bundle JSON:', error)
+      console.error('[FHIRRawDataViewer] Failed to parse bundle JSON:', error)
+      setParseError(
+        error instanceof Error ? error.message : 'Unknown parse error'
+      )
     }
   }, [bundleJson])
 
-  if (!parsedBundle) return null
+  if (parseError) {
+    return (
+      <div className="border border-red-700 rounded-lg overflow-hidden bg-red-900/20">
+        <div className="bg-red-700 px-3 sm:px-4 py-2">
+          <h3 className="text-xs sm:text-sm font-semibold text-white">
+            ❌ Error Parsing FHIR Data
+          </h3>
+        </div>
+        <div className="p-3 sm:p-4">
+          <p className="text-xs sm:text-sm text-red-300">{parseError}</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!parsedBundle) {
+    return (
+      <div className="border border-neutral-700 rounded-lg overflow-hidden bg-neutral-800">
+        <div className="bg-neutral-700 px-3 sm:px-4 py-2">
+          <h3 className="text-xs sm:text-sm font-semibold text-white">
+            🔄 Loading FHIR Data...
+          </h3>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="border border-neutral-700 rounded-lg overflow-hidden bg-neutral-800">

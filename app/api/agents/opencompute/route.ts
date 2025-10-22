@@ -199,9 +199,15 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
               ...result.response.messages
             ]
 
-            // Add FHIR metadata as a data annotation if it exists
+            // Add FHIR metadata as a data annotation BEFORE the last assistant message
+            // This ensures convertToUIMessages will attach it as an annotation
             if (fhirResult.bundle_json || fhirResult.graph_data) {
-              updatedMessages.push({
+              // Find the last assistant message index
+              const lastAssistantIndex = updatedMessages.length - 1
+
+              // Insert the data message right before the last assistant message
+              // so convertToUIMessages will pick it up as a pending annotation
+              const dataMessage = {
                 role: 'data',
                 content: {
                   type: 'fhir-metadata',
@@ -209,7 +215,10 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
                   graphData: fhirResult.graph_data,
                   patientId: journeyData.patient_id
                 }
-              } as any)
+              } as any
+
+              console.log('📦 Inserting FHIR metadata before assistant message')
+              updatedMessages.splice(lastAssistantIndex, 0, dataMessage)
             }
 
             // Create a Supabase client with the user's session for saving

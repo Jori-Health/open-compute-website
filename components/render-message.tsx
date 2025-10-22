@@ -44,6 +44,34 @@ export function RenderMessage({
     [message.annotations]
   )
 
+  // Merge streaming data with message annotations for saved messages
+  // When loading from database, annotations contain the FHIR metadata
+  // When streaming, data contains the FHIR metadata
+  const combinedData = useMemo(() => {
+    const result = [...(data || [])]
+
+    // Add message annotations (from saved messages) if not already in data
+    if (message.annotations) {
+      message.annotations.forEach(annotation => {
+        const annotationType = (annotation as any)?.type
+        // Only add non-related-questions annotations if not already in data
+        if (
+          annotationType &&
+          annotationType !== 'related-questions' &&
+          !result.some((item: any) => item?.type === annotationType)
+        ) {
+          result.push(annotation as JSONValue)
+        }
+      })
+    }
+
+    console.log('[RenderMessage] Combined data:', result)
+    console.log('[RenderMessage] Message annotations:', message.annotations)
+    console.log('[RenderMessage] Streaming data:', data)
+
+    return result
+  }, [data, message.annotations])
+
   // Render for manual tool call
   const toolData = useMemo(() => {
     const toolAnnotations =
@@ -153,7 +181,7 @@ export function RenderMessage({
                 chatId={chatId}
                 showActions={isLastPart}
                 messageId={messageId}
-                data={data as any[]}
+                data={combinedData as any[]}
                 reload={reload}
               />
             )
