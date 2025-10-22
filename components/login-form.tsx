@@ -58,10 +58,16 @@ export function LoginForm({
     setError(null)
 
     try {
+      // Use window.location.origin to get the current domain (works in both dev and prod)
+      const redirectUrl =
+        typeof window !== 'undefined'
+          ? `${window.location.origin}/auth/callback`
+          : '/auth/callback'
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent'

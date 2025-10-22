@@ -2,10 +2,12 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 
 import { Plus } from 'lucide-react'
+import { SiDiscord, SiGithub } from 'react-icons/si'
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -42,6 +44,41 @@ export default function AppSidebar() {
           </Suspense>
         </div>
       </SidebarContent>
+      <SidebarFooter>
+        <div className="px-2 pb-2">
+          <p className="text-xs text-muted-foreground">
+            Contribute to Open Compute
+          </p>
+        </div>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link
+                href="https://github.com/Jori-Health/Open-Compute"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2"
+              >
+                <SiGithub className="size-4" />
+                <span>GitHub</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link
+                href="https://discord.gg/pe33t2xWnU"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2"
+              >
+                <SiDiscord className="size-4" />
+                <span>Discord</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   )
