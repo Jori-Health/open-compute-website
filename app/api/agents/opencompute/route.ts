@@ -9,6 +9,19 @@ import { convertToCoreMessages } from 'ai'
 
 export const maxDuration = 300 // 5 minutes - max for Vercel Enterprise
 
+// Handle OPTIONS request for CORS preflight
+export async function OPTIONS(req: Request) {
+  return new Response(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400' // 24 hours
+    }
+  })
+}
+
 interface JourneyStage {
   name: string
   description: string
@@ -101,6 +114,10 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
     }
 
     // Call the data warehouse OpenCompute endpoint
+    console.log(
+      `🌐 Calling data warehouse: ${dataWarehouseUrl}/opencompute/generate-fhir-from-patient-journey`
+    )
+
     const response = await fetch(
       `${dataWarehouseUrl}/opencompute/generate-fhir-from-patient-journey`,
       {
@@ -108,18 +125,23 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(journeyData)
+        body: JSON.stringify(journeyData),
+        signal: AbortSignal.timeout(240000) // 4 minute timeout (less than maxDuration)
       }
     )
 
+    console.log(`✅ Backend response status: ${response.status}`)
+
     if (!response.ok) {
       const errorText = await response.text()
+      console.error(`❌ Backend error: ${response.status} - ${errorText}`)
       throw new Error(
         `Data warehouse API error: ${response.status} - ${errorText}`
       )
     }
 
     const fhirResult = await response.json()
+    console.log('✅ Backend response received successfully')
 
     // Log the raw backend response for debugging
     console.log('='.repeat(80))
@@ -148,12 +170,22 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
         'graph:',
         !!fhirResult.graph_data
       )
-      data.append({
-        type: 'fhir-metadata',
-        bundleJson: fhirResult.bundle_json,
-        graphData: fhirResult.graph_data,
-        patientId: journeyData.patient_id
-      })
+
+      try {
+        data.append({
+          type: 'fhir-metadata',
+          bundleJson: fhirResult.bundle_json,
+          graphData: fhirResult.graph_data,
+          patientId: journeyData.patient_id
+        })
+        console.log('✅ FHIR metadata appended to stream')
+      } catch (appendError) {
+        console.error(
+          '❌ Error appending FHIR metadata to stream:',
+          appendError
+        )
+        // Continue anyway - data is saved to DB
+      }
     } else {
       console.log('No FHIR metadata to send - no resources generated')
     }
@@ -315,11 +347,24 @@ Extract the information and return ONLY valid JSON. If the input doesn't contain
     return result.toDataStreamResponse({ data })
   } catch (error) {
     console.error('OpenCompute agent error:', error)
+    console.error(
+      'Error stack:',
+      error instanceof Error ? error.stack : 'No stack trace'
+    )
 
-    // Return error as a stream
+    // Determine if this is a timeout error
+    const isTimeout =
+      error instanceof Error &&
+      (error.name === 'AbortError' || error.message.includes('timeout'))
+
+    // Return error as a stream with helpful message
+    const errorMessage = isTimeout
+      ? `The backend request timed out while generating FHIR resources. This usually happens when processing complex patient journeys. The data may still be saved - please check your chat history.`
+      : `There was an error generating FHIR resources: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again or rephrase your request.`
+
     return streamText({
       model: groq('openai/gpt-oss-120b'),
-      prompt: `There was an error generating FHIR resources: ${error instanceof Error ? error.message : 'Unknown error'}. Please try again or rephrase your request.`
+      prompt: errorMessage
     }).toDataStreamResponse()
   }
 }
