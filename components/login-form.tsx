@@ -58,18 +58,22 @@ export function LoginForm({
     setError(null)
 
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${location.origin}/auth/oauth`
+          redirectTo: `${location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent'
+          }
         }
       })
       if (error) throw error
+      // The redirect will happen automatically, no need to manually redirect
     } catch (error: unknown) {
       setError(
         error instanceof Error ? error.message : 'An OAuth error occurred'
       )
-    } finally {
       setIsLoading(false)
     }
   }

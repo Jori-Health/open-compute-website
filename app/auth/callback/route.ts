@@ -9,12 +9,28 @@ export async function GET(request: Request) {
   // if "next" is in param, use it as the redirect URL
   const next = searchParams.get('next') ?? '/'
 
+  console.log('OAuth callback received:', {
+    code: code ? 'present' : 'missing',
+    origin
+  })
+
   if (code) {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
+    try {
+      const supabase = await createClient()
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+
+      if (error) {
+        console.error('OAuth error:', error)
+        return NextResponse.redirect(
+          `${origin}/auth/error?error=${encodeURIComponent(error.message)}`
+        )
+      }
+
+      console.log('OAuth success:', data.user?.email)
+
       const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
       const isLocalEnv = process.env.NODE_ENV === 'development'
+
       if (isLocalEnv) {
         // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
         return NextResponse.redirect(`${origin}${next}`)
@@ -23,9 +39,15 @@ export async function GET(request: Request) {
       } else {
         return NextResponse.redirect(`${origin}${next}`)
       }
+    } catch (error) {
+      console.error('OAuth exception:', error)
+      return NextResponse.redirect(
+        `${origin}/auth/error?error=${encodeURIComponent(String(error))}`
+      )
     }
   }
 
   // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/error`)
+  console.log('No code provided in OAuth callback')
+  return NextResponse.redirect(`${origin}/auth/error?error=no_code`)
 }
