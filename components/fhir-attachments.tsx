@@ -34,7 +34,7 @@ export function FHIRAttachments({ metadata }: FHIRAttachmentsProps) {
   }
 
   return (
-    <div className="mt-6 space-y-4">
+    <div className="mt-4 sm:mt-6 space-y-3 sm:space-y-4">
       {metadata.graphData && <FHIRGraph graphData={metadata.graphData} />}
       {metadata.bundleJson && (
         <>
@@ -94,9 +94,9 @@ function FHIRGraph({ graphData }: { graphData: FHIRMetadata['graphData'] }) {
 
   return (
     <div className="border border-neutral-700 rounded-lg overflow-hidden bg-neutral-800">
-      <div className="bg-neutral-700 px-4 py-2 flex items-center justify-between">
+      <div className="bg-neutral-700 px-3 sm:px-4 py-2 flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-white">
+          <h3 className="text-xs sm:text-sm font-semibold text-white">
             📊 Resource Relationship Graph
           </h3>
           <p className="text-xs text-neutral-300">
@@ -105,14 +105,14 @@ function FHIRGraph({ graphData }: { graphData: FHIRMetadata['graphData'] }) {
           </p>
         </div>
       </div>
-      <div className="p-6 bg-neutral-800">
+      <div className="p-3 sm:p-6 bg-neutral-800">
         {isLoading && (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+          <div className="flex items-center justify-center py-6 sm:py-8">
+            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-white"></div>
           </div>
         )}
         {error && (
-          <div className="text-red-400 text-sm p-4 bg-red-900/20 rounded">
+          <div className="text-red-400 text-xs sm:text-sm p-3 sm:p-4 bg-red-900/20 rounded">
             Error rendering diagram: {error}
           </div>
         )}
@@ -147,21 +147,21 @@ function FHIRDownloadButton({
 
   return (
     <div className="border border-neutral-700 rounded-lg overflow-hidden bg-neutral-800">
-      <div className="bg-neutral-700 px-4 py-2">
-        <h3 className="text-sm font-semibold text-white">
+      <div className="bg-neutral-700 px-3 sm:px-4 py-2">
+        <h3 className="text-xs sm:text-sm font-semibold text-white">
           💾 Download FHIR Bundle
         </h3>
       </div>
-      <div className="p-4">
-        <p className="text-sm text-neutral-300 mb-3">
+      <div className="p-3 sm:p-4">
+        <p className="text-xs sm:text-sm text-neutral-300 mb-3">
           Download the complete FHIR Bundle as a JSON file.
         </p>
         <Button
           onClick={handleDownload}
-          className="bg-blue-600 hover:bg-blue-700 text-white"
+          className="bg-blue-600 hover:bg-blue-700 text-white text-sm h-9 sm:h-10"
         >
-          <Download className="w-4 h-4 mr-2" />
-          Download FHIR Bundle JSON
+          <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
+          <span className="text-xs sm:text-sm">Download FHIR Bundle JSON</span>
         </Button>
       </div>
     </div>
@@ -193,28 +193,28 @@ function FHIRRawDataViewer({
     <div className="border border-neutral-700 rounded-lg overflow-hidden bg-neutral-800">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full bg-neutral-700 px-4 py-2 flex items-center justify-between hover:bg-neutral-600 transition-colors"
+        className="w-full bg-neutral-700 px-3 sm:px-4 py-2 flex items-center justify-between hover:bg-neutral-600 transition-colors"
       >
         <div className="flex items-center gap-2">
           {isExpanded ? (
-            <ChevronDown className="w-4 h-4 text-white" />
+            <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
           ) : (
-            <ChevronRight className="w-4 h-4 text-white" />
+            <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
           )}
-          <h3 className="text-sm font-semibold text-white">
+          <h3 className="text-xs sm:text-sm font-semibold text-white">
             🔍 View Raw Data Structure
           </h3>
         </div>
-        <span className="text-xs text-neutral-300">
+        <span className="text-xs text-neutral-300 hidden sm:inline">
           {isExpanded ? 'Click to collapse' : 'Click to expand'}
         </span>
       </button>
       {isExpanded && (
-        <div className="p-4 max-h-[600px] overflow-auto">
-          <div className="space-y-4">
+        <div className="p-3 sm:p-4 max-h-[400px] sm:max-h-[600px] overflow-auto">
+          <div className="space-y-3 sm:space-y-4">
             {/* Bundle JSON Section */}
             <div>
-              <h4 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
+              <h4 className="text-xs sm:text-sm font-semibold text-white mb-2 flex items-center gap-2 flex-wrap">
                 <span className="bg-blue-600 text-white px-2 py-0.5 rounded text-xs">
                   FHIR Bundle
                 </span>
@@ -222,7 +222,7 @@ function FHIRRawDataViewer({
                   {parsedBundle.entry?.length || 0} resources
                 </span>
               </h4>
-              <div className="bg-neutral-900 rounded-lg p-4 overflow-x-auto">
+              <div className="bg-neutral-900 rounded-lg p-3 sm:p-4 overflow-x-auto">
                 <pre className="text-xs text-neutral-300 whitespace-pre-wrap">
                   {JSON.stringify(parsedBundle, null, 2)}
                 </pre>
@@ -232,7 +232,7 @@ function FHIRRawDataViewer({
             {/* Graph Data Section */}
             {graphData && (
               <div>
-                <h4 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
+                <h4 className="text-xs sm:text-sm font-semibold text-white mb-2 flex items-center gap-2 flex-wrap">
                   <span className="bg-purple-600 text-white px-2 py-0.5 rounded text-xs">
                     Graph Data
                   </span>
@@ -241,7 +241,7 @@ function FHIRRawDataViewer({
                     {graphData.edges?.length || 0} edges
                   </span>
                 </h4>
-                <div className="bg-neutral-900 rounded-lg p-4 overflow-x-auto">
+                <div className="bg-neutral-900 rounded-lg p-3 sm:p-4 overflow-x-auto">
                   <pre className="text-xs text-neutral-300 whitespace-pre-wrap">
                     {JSON.stringify(graphData, null, 2)}
                   </pre>
@@ -252,13 +252,13 @@ function FHIRRawDataViewer({
             {/* Resource Type Summary */}
             {parsedBundle.entry && (
               <div>
-                <h4 className="text-sm font-semibold text-white mb-2 flex items-center gap-2">
+                <h4 className="text-xs sm:text-sm font-semibold text-white mb-2 flex items-center gap-2">
                   <span className="bg-green-600 text-white px-2 py-0.5 rounded text-xs">
                     Resource Summary
                   </span>
                 </h4>
-                <div className="bg-neutral-900 rounded-lg p-4">
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                <div className="bg-neutral-900 rounded-lg p-3 sm:p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                     {Object.entries(
                       parsedBundle.entry.reduce((acc: any, entry: any) => {
                         const type = entry.resource?.resourceType || 'Unknown'
@@ -268,7 +268,7 @@ function FHIRRawDataViewer({
                     ).map(([type, count]) => (
                       <div
                         key={type}
-                        className="bg-neutral-800 px-3 py-2 rounded border border-neutral-700"
+                        className="bg-neutral-800 px-2 sm:px-3 py-2 rounded border border-neutral-700"
                       >
                         <div className="text-xs font-semibold text-white">
                           {type}

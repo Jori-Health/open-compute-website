@@ -111,12 +111,14 @@ export function ChatPanel({
     <div
       className={cn(
         'w-full bg-background group/form-container shrink-0',
-        messages.length > 0 ? 'sticky bottom-0 px-2 pb-4' : 'px-6'
+        messages.length > 0
+          ? 'sticky bottom-0 px-2 sm:px-4 pb-2 sm:pb-4'
+          : 'px-2 sm:px-6'
       )}
     >
       {messages.length === 0 && (
-        <div className="mb-10 flex flex-col items-center gap-4">
-          <p className="text-center text-3xl font-semibold">
+        <div className="mb-4 sm:mb-10 flex flex-col items-center gap-2 sm:gap-4 w-full">
+          <p className="text-center text-lg sm:text-2xl md:text-3xl font-semibold px-2 sm:px-4 w-full break-words">
             How can I help you today?
           </p>
         </div>
@@ -131,7 +133,7 @@ export function ChatPanel({
             type="button"
             variant="outline"
             size="icon"
-            className="absolute -top-10 right-4 z-20 size-8 rounded-full shadow-md"
+            className="absolute -top-8 sm:-top-10 right-2 sm:right-4 z-20 size-8 rounded-full shadow-md"
             onClick={handleScrollToBottom}
             title="Scroll to bottom"
           >
@@ -139,7 +141,7 @@ export function ChatPanel({
           </Button>
         )}
 
-        <div className="relative flex flex-col w-full gap-2 bg-muted rounded-3xl border border-input">
+        <div className="relative flex flex-col w-full gap-2 bg-muted rounded-2xl sm:rounded-3xl border border-input">
           <Textarea
             ref={inputRef}
             name="input"
@@ -152,7 +154,7 @@ export function ChatPanel({
             spellCheck={false}
             value={input}
             disabled={isLoading || isToolInvocationInProgress()}
-            className="resize-none w-full min-h-12 bg-transparent border-0 p-4 text-sm placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+            className="resize-none w-full min-h-12 bg-transparent border-0 p-3 sm:p-4 text-sm placeholder:text-muted-foreground focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
             onChange={e => {
               handleInputChange(e)
               setShowEmptyScreen(e.target.value.length === 0)
@@ -178,12 +180,12 @@ export function ChatPanel({
           />
 
           {/* Bottom menu area */}
-          <div className="flex items-center justify-between p-3">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between p-2 sm:p-3 gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 flex-1 min-w-0">
               <ModelSelector models={models || []} />
               {/* <SearchModeToggle /> */}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
               {/* {messages.length > 0 && (
                 <Button
                   variant="outline"
@@ -200,14 +202,21 @@ export function ChatPanel({
                 type={isLoading ? 'button' : 'submit'}
                 size={'icon'}
                 variant={'outline'}
-                className={cn(isLoading && 'animate-pulse', 'rounded-full')}
+                className={cn(
+                  isLoading && 'animate-pulse',
+                  'rounded-full size-9 sm:size-10'
+                )}
                 disabled={
                   (input.length === 0 && !isLoading) ||
                   isToolInvocationInProgress()
                 }
                 onClick={isLoading ? stop : undefined}
               >
-                {isLoading ? <Square size={20} /> : <ArrowUp size={20} />}
+                {isLoading ? (
+                  <Square size={18} className="sm:size-5" />
+                ) : (
+                  <ArrowUp size={18} className="sm:size-5" />
+                )}
               </Button>
             </div>
           </div>

@@ -154,21 +154,21 @@ export const SearchResultsImageSection: React.FC<
                   )}
               </div>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-3xl max-h-[80vh] overflow-auto">
+            <DialogContent className="w-[95vw] max-w-3xl max-h-[85vh] overflow-auto p-4 sm:p-6">
               <DialogHeader>
-                <DialogTitle>Search Images</DialogTitle>
-                <DialogDescription className="text-sm">
+                <DialogTitle className="text-base sm:text-lg">Search Images</DialogTitle>
+                <DialogDescription className="text-xs sm:text-sm">
                   {query}
                 </DialogDescription>
               </DialogHeader>
-              <div className="py-4">
+              <div className="py-2 sm:py-4">
                 <Carousel
                   setApi={setApi}
                   opts={{
                     startIndex: selectedIndex,
                     loop: convertedImages.length > 1
                   }}
-                  className="w-full bg-muted max-h-[60vh]"
+                  className="w-full bg-muted max-h-[60vh] sm:max-h-[60vh]"
                 >
                   <CarouselContent>
                     {convertedImages.map((img, idx) => (
@@ -177,7 +177,7 @@ export const SearchResultsImageSection: React.FC<
                           <img
                             src={img.url}
                             alt={`Image ${idx + 1}`}
-                            className="h-auto w-full object-contain max-h-[60vh]"
+                            className="h-auto w-full object-contain max-h-[50vh] sm:max-h-[60vh]"
                             onError={e =>
                               (e.currentTarget.src =
                                 '/images/placeholder-image.png')
@@ -188,17 +188,17 @@ export const SearchResultsImageSection: React.FC<
                     ))}
                   </CarouselContent>
                   {convertedImages.length > 1 && (
-                    <div className="absolute inset-8 flex items-center justify-between p-4">
-                      <CarouselPrevious className="w-10 h-10 rounded-full shadow focus:outline-none">
+                    <div className="absolute inset-2 sm:inset-8 flex items-center justify-between p-2 sm:p-4">
+                      <CarouselPrevious className="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow focus:outline-none">
                         <span className="sr-only">Previous</span>
                       </CarouselPrevious>
-                      <CarouselNext className="w-10 h-10 rounded-full shadow focus:outline-none">
+                      <CarouselNext className="w-8 h-8 sm:w-10 sm:h-10 rounded-full shadow focus:outline-none">
                         <span className="sr-only">Next</span>
                       </CarouselNext>
                     </div>
                   )}
                 </Carousel>
-                <div className="py-2 text-center text-sm text-muted-foreground">
+                <div className="py-2 text-center text-xs sm:text-sm text-muted-foreground">
                   {current} of {count}
                 </div>
               </div>
@@ -226,7 +226,7 @@ export const SearchResultsImageSection: React.FC<
         {secondRowImages.length > 0 && // Only render second row if images exist
           renderImageGrid(
             secondRowImages,
-            'grid grid-cols-3 gap-2',
+            'grid grid-cols-2 sm:grid-cols-3 gap-2',
             2,
             true // Pass true for isFullMode
           )}
@@ -239,7 +239,7 @@ export const SearchResultsImageSection: React.FC<
   // Preview mode uses default rounding (rounded-lg), so isFullMode=false
   return renderImageGrid(
     previewImages,
-    'grid grid-cols-2 md:grid-cols-4 gap-2',
+    'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2',
     0,
     false
   )

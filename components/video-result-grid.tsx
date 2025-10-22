@@ -35,7 +35,7 @@ export function VideoResultGrid({
         const baseUrl = video.imageUrl ? video.imageUrl.split('?')[0] : ''
         const showOverlay =
           displayMode === 'chat' && index === 3 && videos.length > 4
-        const cardClasses = displayMode === 'chat' ? 'w-1/2 md:w-1/4 p-1' : ''
+        const cardClasses = displayMode === 'chat' ? 'w-full sm:w-1/2 md:w-1/4 p-1' : ''
 
         return (
           <VideoCarouselDialog
@@ -57,7 +57,7 @@ export function VideoResultGrid({
                         fill
                         sizes={
                           displayMode === 'chat'
-                            ? '(max-width: 768px) 50vw, 25vw'
+                            ? '(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw'
                             : '(max-width: 639px) 300px, 250px'
                         } // Different sizes per mode
                         className="object-cover"
@@ -72,11 +72,11 @@ export function VideoResultGrid({
                   <div className="p-2">
                     {' '}
                     {/* Inner padding for text */}
-                    <p className="text-xs line-clamp-2 mb-1 font-semibold">
+                    <p className="text-xs sm:text-xs line-clamp-2 mb-1 font-semibold">
                       {video.title}
                     </p>
                     <div className="flex items-center space-x-2">
-                      <Avatar className="h-4 w-4">
+                      <Avatar className="h-4 w-4 flex-shrink-0">
                         <AvatarImage
                           src={`https://www.google.com/s2/favicons?domain=${
                             new URL(video.link).hostname

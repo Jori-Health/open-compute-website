@@ -89,31 +89,31 @@ export function ModelSelector({ models }: ModelSelectorProps) {
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="text-sm rounded-full shadow-none focus:ring-0"
+          className="text-xs sm:text-sm rounded-full shadow-none focus:ring-0 min-w-0"
         >
           {selectedModel ? (
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center space-x-1 min-w-0">
               <Image
                 src={`/providers/logos/${selectedModel.providerId}.svg`}
                 alt={selectedModel.provider}
-                width={18}
-                height={18}
-                className="bg-white rounded-full border"
+                width={16}
+                height={16}
+                className="bg-white rounded-full border flex-shrink-0"
               />
-              <span className="text-xs font-medium">{selectedModel.name}</span>
+              <span className="text-xs font-medium truncate max-w-[100px] sm:max-w-none">{selectedModel.name}</span>
               {isReasoningModel(selectedModel.id) && (
-                <Lightbulb size={12} className="text-accent-blue-foreground" />
+                <Lightbulb size={12} className="text-accent-blue-foreground flex-shrink-0" />
               )}
             </div>
           ) : (
             'Select model'
           )}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronsUpDown className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-72 p-0" align="start">
+      <PopoverContent className="w-[280px] sm:w-72 p-0" align="start">
         <Command>
-          <CommandInput placeholder="Search models..." />
+          <CommandInput placeholder="Search models..." className="text-xs sm:text-sm" />
           <CommandList>
             <CommandEmpty>No model found.</CommandEmpty>
             {Object.entries(groupedModels).map(([provider, models]) => (

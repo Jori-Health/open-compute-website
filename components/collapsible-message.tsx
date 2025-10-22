@@ -35,12 +35,12 @@ export function CollapsibleMessage({
   const content = <div className="flex-1">{children}</div>
 
   return (
-    <div className="flex">
+    <div className="flex gap-2 sm:gap-3">
       {showIcon && (
-        <div className="relative flex flex-col items-center">
-          <div className="w-5">
+        <div className="relative flex flex-col items-center flex-shrink-0">
+          <div className="w-4 sm:w-5">
             {role === 'assistant' ? (
-              <IconLogo className="size-5" />
+              <IconLogo className="size-4 sm:size-5" />
             ) : (
               <CurrentUserAvatar />
             )}
@@ -51,7 +51,7 @@ export function CollapsibleMessage({
       {isCollapsible ? (
         <div
           className={cn(
-            'flex-1 rounded-2xl p-4',
+            'flex-1 rounded-xl sm:rounded-2xl p-3 sm:p-4 min-w-0',
             showBorder && 'border border-border/50'
           )}
         >
@@ -61,19 +61,19 @@ export function CollapsibleMessage({
             className="w-full"
           >
             <div className="flex items-center justify-between w-full gap-2">
-              {header && <div className="text-sm w-full">{header}</div>}
+              {header && <div className="text-xs sm:text-sm w-full min-w-0">{header}</div>}
               <CollapsibleTrigger asChild>
                 <button
                   type="button"
-                  className="rounded-md p-1 hover:bg-accent group"
+                  className="rounded-md p-1 hover:bg-accent group flex-shrink-0"
                   aria-label={isOpen ? 'Collapse' : 'Expand'}
                 >
-                  <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  <ChevronDown className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </button>
               </CollapsibleTrigger>
             </div>
             <CollapsibleContent className="data-[state=closed]:animate-collapse-up data-[state=open]:animate-collapse-down">
-              <Separator className="my-4 border-border/50" />
+              <Separator className="my-3 sm:my-4 border-border/50" />
               {content}
             </CollapsibleContent>
           </Collapsible>
@@ -81,8 +81,8 @@ export function CollapsibleMessage({
       ) : (
         <div
           className={cn(
-            'flex-1 rounded-2xl',
-            role === 'assistant' ? 'px-0' : 'px-3'
+            'flex-1 rounded-xl sm:rounded-2xl min-w-0',
+            role === 'assistant' ? 'px-0' : 'px-2 sm:px-3'
           )}
         >
           {content}
