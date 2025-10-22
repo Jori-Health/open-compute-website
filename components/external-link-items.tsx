@@ -1,11 +1,17 @@
 'use client'
 
-import { SiDiscord, SiGithub } from 'react-icons/si'
+import { BookOpen } from 'lucide-react'
 import Link from 'next/link'
+import { SiDiscord, SiGithub } from 'react-icons/si'
 
 import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
 
 const externalLinks = [
+  {
+    name: 'Docs',
+    href: 'https://docs.jori.health',
+    icon: <BookOpen className="mr-2 h-4 w-4" />
+  },
   {
     name: 'GitHub',
     href: 'https://github.com/Jori-Health/Open-Compute',

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
 
-import { Plus } from 'lucide-react'
+import { BookOpen, Plus } from 'lucide-react'
 import { SiDiscord, SiGithub } from 'react-icons/si'
 
 import {
@@ -51,6 +51,19 @@ export default function AppSidebar() {
           </p>
         </div>
         <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <Link
+                href="https://docs.jori.health"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2"
+              >
+                <BookOpen className="size-4" />
+                <span>Docs</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <Link
